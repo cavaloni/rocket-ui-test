@@ -1,19 +1,12 @@
-import React from 'react';
+import React from 'react'
 
-const Layout = ({
-                  pageName, menu, children
-                }) => {
-  return (
-    <main className={`${pageName} layout`}>
-      <nav>
-        { menu }
-      </nav>
+const Layout = ({ pageName, menu, children }) => {
+    return (
+        <main className={`${pageName} layout`}>
+            <nav>{menu}</nav>
+            <section>{children}</section>
+        </main>
+    )
+}
 
-      <section>
-        { children }
-      </section>
-    </main>
-  );
-};
-
-export default Layout;
+export default Layout

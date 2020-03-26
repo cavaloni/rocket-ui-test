@@ -1,50 +1,63 @@
-import React, { Component } from 'react';
-import ConnectedView from './ConnectedView';
-import {fetchLaunchesIfNeeded} from "../actions/Launches";
-import Launch from '../components/Launch';
+import React, { useEffect, useState } from 'react'
+import { bindActionCreators } from 'redux'
+import ConnectedView from './ConnectedView'
+import { fetchLaunches } from '../actions/Launches'
+import Launch from '../components/Launch'
 
-class LaunchesView extends Component {
-  componentDidMount() {
-    const { dispatch, launchesCollection } = this.props;
-    fetchLaunchesIfNeeded({ dispatch, launchesCollection });
-  }
+const LaunchesView = ({ fetching, launches, dispatch }) => {
+    useEffect(() => {
+        fetchLaunches(dispatch)
+    }, [])
 
-  getContent() {
-    const { launchCollection } = this.props;
+    const [curOpenLaunch, updateOpenLaunch] = useState()
 
-    if (!launchCollection || launchCollection.fetching) {
-      return <div> LOADING </div>;
+    const toggleRocket = id => {
+        if (curOpenLaunch === id) updateOpenLaunch()
+        else updateOpenLaunch(id)
     }
 
-    if (!launchCollection.launches.length) {
-      return <div> NO DATA </div>;
+    const getContent = () => {
+        if (fetching) {
+            return <div> LOADING </div>
+        }
+
+        if (!launches.length) {
+            return <div> NO DATA </div>
+        }
+
+        const launchesToDisplay = launches.map(launch => (
+            <Launch
+                key={launch.launch_id}
+                launch={launch}
+                curOpenLaunch={curOpenLaunch}
+                toggleRocket={toggleRocket}
+            />
+        ))
+
+        return <ul>{launchesToDisplay}</ul>
     }
 
-    let launches = [];
-
-    for (let i = 0; i < launchCollection.launches.length; i++) {
-      const launch = launchCollection.launches[i];
-
-      launches.push(
-        <Launch {...{
-          key: launch.launch_id,
-          launch
-        }} />
-
-      )
-    }
-
-    return <ul>{launches}</ul>;
-  }
-
-  render() {
     return (
-      <div>
-        <h2> SpaceX launches </h2>
-        {this.getContent()}
-      </div>
-    );
-  }
+        <div>
+            <h2> SpaceX launches </h2>
+            {getContent()}
+        </div>
+    )
 }
 
-export default ConnectedView(LaunchesView, 'launches');
+const mapStateToProps = state => ({
+    launches: state.launchCollection.launches,
+    fetching: state.launchCollection.fetching,
+})
+
+const mapDispatchToProps = dispatch => ({
+    dispatch,
+    ...bindActionCreators({ fetchLaunches }),
+})
+
+export default ConnectedView(
+    LaunchesView,
+    'launches',
+    mapStateToProps,
+    mapDispatchToProps
+)

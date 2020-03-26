@@ -1,19 +1,22 @@
-import { ACTIONS } from '../actions/Launches'
+import { ACTIONS } from '../actions/Rockets'
 
 const initialState = {
-    launches: [],
+    rockets: {},
     fetching: false,
 }
 
 const actionHandlers = {
-    [ACTIONS.REQUEST_LAUNCHES]: ({ state }) => ({
+    [ACTIONS.REQUEST_ROCKET]: ({ state }) => ({
         ...state,
         fetching: true,
     }),
-    [ACTIONS.RECEIVE_LAUNCHES]: ({ state, action }) => ({
+    [ACTIONS.RECEIVE_ROCKET]: ({ state, action }) => ({
         ...state,
         fetching: false,
-        launches: [...state.launches, ...action.payload.launches],
+        rockets: {
+            ...state.rockets,
+            [action.payload.rocket.rocket_id]: action.payload.rocket,
+        },
     }),
 }
 
